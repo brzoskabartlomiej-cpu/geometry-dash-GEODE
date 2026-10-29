@@ -1,0 +1,8 @@
+{
+  "id": "rainbow-cube",
+  "name": "Rainbow Cube",
+  "version": "1.0.0",
+  "author": "Geo Dash team",
+  "description": "Cycles the cube palette while you run.",
+  "entry": "index.js"
+}

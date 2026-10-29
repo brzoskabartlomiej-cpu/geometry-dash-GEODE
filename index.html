@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#0b0f2b" />
+    <meta
+      name="description"
+      content="Geo Dash - an open source Geometry Dash style platformer that needs no Steam and ships with a Geode style mod loader."
+    />
+    <title>Geo Dash</title>
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="game"></canvas>
+
+      <div class="hud" id="hud">
+        <div class="hud-block hud-level">
+          <span class="hud-title" id="hud-level">Stereo Sprint</span>
+          <div class="progress">
+            <div class="progress-fill" id="hud-bar"></div>
+          </div>
+        </div>
+        <div class="hud-block hud-stats">
+          <span id="hud-pct">0%</span>
+          <span class="dim" id="hud-best">best 0%</span>
+          <span class="dim" id="hud-attempts">attempt 1</span>
+          <span class="dim" id="hud-fps">-- fps</span>
+          <button id="hud-quality" class="chip" title="Graphics quality">HQ</button>
+        </div>
+      </div>
+
+      <div class="attempt-banner" id="attempt-banner"></div>
+      <div class="toasts" id="toasts"></div>
+
+      <div class="overlay" id="overlay">
+        <section class="panel" id="panel-menu">
+          <h1 class="logo">GEO<span>DASH</span></h1>
+          <p class="sub">
+            Open source · no Steam required · Geode-style mod loader
+          </p>
+
+          <button class="primary" id="btn-play">PLAY</button>
+
+          <div class="row">
+            <span class="row-label">Quality</span>
+            <div class="seg" id="quality-seg" role="group" aria-label="Graphics quality"></div>
+          </div>
+
+          <div class="row">
+            <span class="row-label">Mods</span>
+            <button class="ghost" id="btn-mods" aria-pressed="true">on</button>
+          </div>
+          <ul class="mods" id="mods-list"></ul>
+
+          <p class="hint">
+            <kbd>Space</kbd> / <kbd>W</kbd> / click / tap to jump — hold to keep jumping.
+            <kbd>Esc</kbd> pauses. Progress is saved locally.
+          </p>
+        </section>
+
+        <section class="panel hidden" id="panel-pause">
+          <h2>Paused</h2>
+          <p class="sub" id="pause-progress">0%</p>
+          <button class="primary" id="btn-resume">RESUME</button>
+          <button class="ghost" id="btn-restart">Restart run</button>
+          <button class="ghost" id="btn-quit">Menu</button>
+        </section>
+
+        <section class="panel hidden" id="panel-complete">
+          <h2 class="win">Level complete</h2>
+          <p class="sub" id="complete-stats"></p>
+          <button class="primary" id="btn-again">PLAY AGAIN</button>
+          <button class="ghost" id="btn-menu">Menu</button>
+        </section>
+      </div>
+
+      <div class="touch-hint" id="touch-hint">tap to jump</div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

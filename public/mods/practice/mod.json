@@ -1,0 +1,8 @@
+{
+  "id": "practice",
+  "name": "Practice Mode",
+  "version": "1.0.0",
+  "author": "Geo Dash team",
+  "description": "Respawn two blocks before the point where you died.",
+  "entry": "index.js"
+}
