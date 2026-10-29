@@ -1,0 +1,37 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Geo Dash",
+  "version": "0.1.0",
+  "identifier": "app.geodash.desktop",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:5173",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Geo Dash",
+        "width": 1280,
+        "height": 720,
+        "minWidth": 720,
+        "minHeight": 480,
+        "resizable": true,
+        "fullscreen": false,
+        "center": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https:; worker-src 'self' blob:"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "category": "Game",
+    "shortDescription": "Open source Geometry Dash style platformer",
+    "longDescription": "Geo Dash is an open source Geometry Dash style platformer which needs no Steam account and ships with a Geode style mod loader."
+  }
+}
