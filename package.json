@@ -10,8 +10,11 @@
     "preview": "vite preview --host 0.0.0.0",
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
+    "validate": "node scripts/validate-configs.mjs",
     "desktop": "tauri dev",
-    "desktop:build": "tauri build"
+    "desktop:build": "tauri build",
+    "icons": "npx tauri icon assets/icon.png",
+    "make-icon": "python3 scripts/make-icon.py"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.12.4",

@@ -30,14 +30,20 @@ npm install
 npm run dev        # http://localhost:5173 (web / słabsze urządzenia)
 npm test           # 18 testów: fizyka, kolizje, level design, bot, smoke test pętli gry
 npm run build      # produkcyjny build do dist/
+npm run validate   # spójność tauri.conf.json / package.json / manifestów modów
 ```
 
 Wersja natywna (wymaga [Rust](https://rustup.rs) + zależności systemowych Tauri):
 
 ```bash
 npm run desktop        # okno natywne z hot reloadem
-npm run desktop:build  # instalator .msi / .dmg / .AppImage
+npm run desktop:build  # instalator .msi / .dmg / .deb / .rpm / .AppImage
 ```
+
+Gotowe instalatory bez lokalnego Rusta: workflow `.github/workflows/desktop.yml`
+(Actions → *Desktop builds* → *Run workflow*, albo push tagu `v0.1.0` → GitHub Release z
+plikami). Wersja przeglądarkowa publikuje się na Pages przez `.github/workflows/pages.yml`.
+Pełna instrukcja, wymagania per system i typowe błędy: **[docs/build.md](docs/build.md)**.
 
 Sterowanie: `Space` / `W` / `↑` / `Z`, klik lub tap. Przytrzymaj, żeby skakać po każdym
 kontakcie z podłożem. `Esc` pauzuje.
@@ -53,7 +59,9 @@ src/
   ui/          warstwa DOM (HUD, panele, toasty)
   game.ts      pętla fixed-step, kamera, integracja modów
 public/mods/   instalowane mody (manifest + entry)
-src-tauri/     powłoka natywna (Tauri 2)
+src-tauri/     powłoka natywna (Tauri 2): Cargo.toml, tauri.conf.json, ikony
+scripts/       walidator configów + generator ikony (bez zależności)
+.github/       CI (testy/build), build instalatorów, deploy na Pages
 ```
 
 Symulacja nie zna renderera ani DOM-u, dzięki czemu te same testy w Node sprawdzają, czy
