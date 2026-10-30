@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    name: Typecheck, tests, web build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate repo configs (tauri, package, mods)
+        run: node scripts/validate-configs.mjs
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Tests (physics, level design, bot, game loop)
+        run: npm test
+
+      - name: Web build
+        run: npm run build
+
+      - name: Validate configs against the built dist
+        run: node scripts/validate-configs.mjs
+
+      - name: Build portable ZIP (single file + server + mods)
+        run: npm run portable
+
+      - name: Upload web build
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: dist
+          if-no-files-found: error
+
+      - name: Upload portable ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: geo-dash-portable
+          path: release/GeoDash-*-portable.zip
+          if-no-files-found: error

@@ -1,0 +1,131 @@
+name: Desktop builds
+
+# Builds the native installers without needing a local Rust toolchain.
+#  - manual run (Actions -> Desktop builds -> Run workflow)  -> downloadable artifacts
+#  - push a tag like v0.1.0                                   -> artifacts + GitHub release
+#
+# The installers are unsigned: Windows shows SmartScreen, macOS needs the
+# quarantine flag removed. See docs/build.md.
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux (AppImage, deb, rpm)
+            os: ubuntu-22.04
+            rustTargets: ""
+            tauriArgs: ""
+          - name: Windows (msi, nsis)
+            os: windows-latest
+            rustTargets: ""
+            tauriArgs: ""
+          - name: macOS (universal app, dmg)
+            os: macos-latest
+            rustTargets: aarch64-apple-darwin,x86_64-apple-darwin
+            tauriArgs: --target universal-apple-darwin
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Rust (host target)
+        if: matrix.rustTargets == ''
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Rust (universal macOS targets)
+        if: matrix.rustTargets != ''
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+
+      - name: Cache cargo
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      - name: Install Linux dependencies
+        if: matrix.os == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev build-essential curl wget file \
+            libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Validate configs
+        run: node scripts/validate-configs.mjs
+
+      - name: Tests
+        run: npm test
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Build native installers
+        run: npx tauri build ${{ matrix.tauriArgs }}
+
+      - name: Build portable ZIP
+        if: matrix.os == 'ubuntu-22.04'
+        run: npm run portable
+
+      - name: Upload portable ZIP
+        if: matrix.os == 'ubuntu-22.04'
+        uses: actions/upload-artifact@v4
+        with:
+          name: geo-dash-portable
+          if-no-files-found: error
+          path: release/GeoDash-*-portable.zip
+
+      - name: Upload installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: geo-dash-${{ matrix.os }}
+          if-no-files-found: error
+          path: |
+            src-tauri/target/**/release/bundle/msi/*.msi
+            src-tauri/target/**/release/bundle/nsis/*.exe
+            src-tauri/target/**/release/bundle/dmg/*.dmg
+            src-tauri/target/**/release/bundle/macos/*.app
+            src-tauri/target/**/release/bundle/deb/*.deb
+            src-tauri/target/**/release/bundle/rpm/*.rpm
+            src-tauri/target/**/release/bundle/appimage/*.AppImage
+
+  release:
+    name: Publish GitHub release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: List files to publish
+        run: find artifacts -type f | sort
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --title "Geo Dash ${GITHUB_REF_NAME}" \
+            --generate-notes \
+            $(find artifacts -type f \( -name '*.msi' -o -name '*.exe' -o -name '*.dmg' -o -name '*.deb' -o -name '*.rpm' -o -name '*.AppImage' -o -name '*.zip' \) -print)

@@ -10,6 +10,18 @@
 
 type Listener = (event: StubEvent) => void;
 
+/** Counters so tests can assert that real drawing happened. */
+export const stubCounters = {
+  fillRect: 0,
+  fill: 0,
+  frames: 0,
+  reset() {
+    this.fillRect = 0;
+    this.fill = 0;
+    this.frames = 0;
+  },
+};
+
 export type StubEvent = {
   type: string;
   code?: string;
@@ -126,8 +138,12 @@ class StubCanvas extends StubElement {
       moveTo: noop,
       lineTo: noop,
       closePath: noop,
-      fill: noop,
-      fillRect: noop,
+      fill: () => {
+        stubCounters.fill++;
+      },
+      fillRect: () => {
+        stubCounters.fillRect++;
+      },
       strokeRect: noop,
       clearRect: noop,
       fillStyle: "#000",
@@ -161,7 +177,12 @@ export function installDom(ids: string[]): DomHarness {
     getElementById: (id: string) => elements.get(id) ?? null,
     createElement: (tag: string) => (tag === "canvas" ? new StubCanvas() : new StubElement(tag)),
     addEventListener: () => {},
+    // Vite's modulepreload polyfill calls this before the bundle body runs
+    querySelectorAll: () => [] as StubElement[],
+    head: new StubElement("head"),
+    body: new StubElement("body"),
     activeElement: null,
+    hidden: false,
   };
 
   const global = globalThis as unknown as Record<string, unknown>;
@@ -178,6 +199,16 @@ export function installDom(ids: string[]): DomHarness {
   set("HTMLInputElement", class {});
   set("HTMLTextAreaElement", class {});
   set("HTMLCanvasElement", StubCanvas);
+  set(
+    "MutationObserver",
+    class {
+      observe(): void {}
+      disconnect(): void {}
+      takeRecords(): unknown[] {
+        return [];
+      }
+    },
+  );
 
   const store = new Map<string, string>();
   set("localStorage", {
@@ -226,6 +257,7 @@ export function installDom(ids: string[]): DomHarness {
         const batch = rafQueue;
         rafQueue = [];
         time += stepMs;
+        stubCounters.frames++;
         for (const cb of batch) cb(time);
         if (rafQueue.length === 0) break;
       }

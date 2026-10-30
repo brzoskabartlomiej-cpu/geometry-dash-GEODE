@@ -7,3 +7,4 @@ coverage/
 .vite/
 src-tauri/target/
 src-tauri/gen/
+release/
