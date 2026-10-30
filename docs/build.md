@@ -148,6 +148,8 @@ drobnych poprawek wersji akcji.
 | `failed to run light.exe` (Windows, MSI) | włącz opcjonalny VBSCRIPT w Windows |
 | AppImage nie startuje | `sudo apt install libfuse2` |
 | macOS „app is damaged” | build niepodpisany: `xattr -dr com.apple.quarantine "Geo Dash.app"` |
+| PowerShell: `npm.ps1 cannot be loaded because running scripts is disabled` | Execution Policy blokuje `npm.ps1`. Doraźnie: `npm.cmd install`. Na stałe: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` (potem nowy terminal) |
+| PowerShell: `npm : The term 'npm' is not recognized` | brak shimów npm w PATH: sprawdź `where.exe npm`, `Test-Path "C:\Program Files\nodejs\npm.cmd"`; wersja Node ze Microsoft Store bywa okrojona → instalator `.msi` z nodejs.org |
 | `npm ci` fails | `package-lock.json` musi być aktualny: `npm install` i commit locka |
 | Cross-kompilacja z Linuksa na Windows | nie wspierana „za darmo”; użyj `desktop.yml` w Actions |
 
