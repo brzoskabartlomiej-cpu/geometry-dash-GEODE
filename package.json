@@ -11,6 +11,8 @@
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "validate": "node scripts/validate-configs.mjs",
+    "portable": "node scripts/package-portable.mjs",
+    "verify:portable": "node --experimental-strip-types scripts/verify-portable.mjs",
     "desktop": "tauri dev",
     "desktop:build": "tauri build",
     "icons": "npx tauri icon assets/icon.png",

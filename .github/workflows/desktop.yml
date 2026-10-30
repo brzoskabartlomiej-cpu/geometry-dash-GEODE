@@ -81,6 +81,18 @@ jobs:
       - name: Build native installers
         run: npx tauri build ${{ matrix.tauriArgs }}
 
+      - name: Build portable ZIP
+        if: matrix.os == 'ubuntu-22.04'
+        run: npm run portable
+
+      - name: Upload portable ZIP
+        if: matrix.os == 'ubuntu-22.04'
+        uses: actions/upload-artifact@v4
+        with:
+          name: geo-dash-portable
+          if-no-files-found: error
+          path: release/GeoDash-*-portable.zip
+
       - name: Upload installers
         uses: actions/upload-artifact@v4
         with:
@@ -116,4 +128,4 @@ jobs:
             --repo "${GITHUB_REPOSITORY}" \
             --title "Geo Dash ${GITHUB_REF_NAME}" \
             --generate-notes \
-            $(find artifacts -type f \( -name '*.msi' -o -name '*.exe' -o -name '*.dmg' -o -name '*.deb' -o -name '*.rpm' -o -name '*.AppImage' \) -print)
+            $(find artifacts -type f \( -name '*.msi' -o -name '*.exe' -o -name '*.dmg' -o -name '*.deb' -o -name '*.rpm' -o -name '*.AppImage' -o -name '*.zip' \) -print)

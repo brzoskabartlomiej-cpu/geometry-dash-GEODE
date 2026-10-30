@@ -40,6 +40,41 @@ dist/mods/…                      mody (manifesty + entry)
 Można to wrzucić na GitHub Pages, Netlify, nginx, cokolwiek. `base` w `vite.config.ts` jest
 ustawione na `"./"`, więc build działa też z podkatalogu (np. `/<repo>/` na Pages).
 
+## 1a. Portable ZIP — „działający zip" (dwuklik, bez serwera)
+
+```bash
+npm run portable          # build + pojedynczy plik HTML + zip + automatyczny test
+```
+
+Wynik: **`release/GeoDash-v0.1.0-portable.zip`** (~60 kB) o zawartości:
+
+```
+GeoDash-v0.1.0/
+  GeoDash.html          <- dwuklik i gra działa (JS + CSS w jednym pliku)
+  web/                  <- normalny build (index.html + assets/ + mods/)
+  server.mjs            <- serwer bez zależności: node server.mjs
+  start-windows.cmd     <- dwuklik: serwer + otwarcie przeglądarki
+  start-linux-macos.sh
+  START-HERE.txt        <- instrukcja
+```
+
+Dlaczego nie wystarczy zipować `dist/`: `dist/index.html` ładuje moduły ES z osobnych
+plików, a przeglądarki blokują `file://` dla modułów (CORS). Dlatego packager **inline'uje**
+JS i CSS do jednego HTML-a — dopiero taki plik działa po dwukliku. Mody w trybie `file://`
+są wyłączone (fetch z dysku jest zablokowany), dlatego w zipie jest też `web/` + `server.mjs`:
+
+```bash
+node server.mjs            # http://localhost:8080 — pełna wersja z modami
+```
+
+Packager sam uruchamia test (`scripts/verify-portable.mjs`), który wyciąga inline'owany bundle
+i **wykonuje go headless w Node** na stubie DOM: sprawdza, że gra wstaje, rysuje klatki, HUD
+pokazuje poziom i że po 4 s grania postęp rośnie. Zepsuty build nie trafi do zipa.
+Pominięcie testu: `npm run portable -- --no-verify`. Sam test: `npm run verify:portable`.
+
+Zip jest też budowany w CI (`ci.yml`) i dołączany do release'ów (`desktop.yml`, tag `v*`) —
+można go pobrać bez kompilowania czegokolwiek lokalnie.
+
 ## 2. Desktop (Tauri 2) — pełny build natywny
 
 ### 2.1 Rust

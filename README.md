@@ -40,6 +40,15 @@ npm run desktop        # okno natywne z hot reloadem
 npm run desktop:build  # instalator .msi / .dmg / .deb / .rpm / .AppImage
 ```
 
+Najszybciej zagrasz bez żadnego serwera i bez instalacji:
+
+```bash
+npm run portable   # -> release/GeoDash-v0.1.0-portable.zip (dwuklik w GeoDash.html)
+```
+
+W zipie jest też `web/` + `server.mjs` (`node server.mjs` → http://localhost:8080), bo mody
+wymagają HTTP — przeglądarki blokują `fetch` z `file://`. Szczegóły: [docs/build.md](docs/build.md).
+
 Gotowe instalatory bez lokalnego Rusta: workflow `.github/workflows/desktop.yml`
 (Actions → *Desktop builds* → *Run workflow*, albo push tagu `v0.1.0` → GitHub Release z
 plikami). Wersja przeglądarkowa publikuje się na Pages przez `.github/workflows/pages.yml`.

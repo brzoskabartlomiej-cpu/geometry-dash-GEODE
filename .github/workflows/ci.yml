@@ -40,9 +40,19 @@ jobs:
       - name: Validate configs against the built dist
         run: node scripts/validate-configs.mjs
 
+      - name: Build portable ZIP (single file + server + mods)
+        run: npm run portable
+
       - name: Upload web build
         uses: actions/upload-artifact@v4
         with:
           name: web-dist
           path: dist
+          if-no-files-found: error
+
+      - name: Upload portable ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: geo-dash-portable
+          path: release/GeoDash-*-portable.zip
           if-no-files-found: error
